@@ -1,0 +1,22 @@
+{
+  "name": "worker",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute ai-ui-db --file=src/db/schema.sql"
+  },
+  "dependencies": {
+    "@google/genai": "^1.48.0",
+    "hono": "^4.12.12",
+    "mammoth": "^1.12.0",
+    "nanoid": "^5.1.7",
+    "unpdf": "^1.4.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4",
+    "typescript": "^5",
+    "wrangler": "^4"
+  }
+}

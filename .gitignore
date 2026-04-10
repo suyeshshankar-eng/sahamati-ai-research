@@ -1,0 +1,9 @@
+node_modules/
+.claude/
+dist/
+.wrangler/
+.dev.vars
+.env
+*.local
+.DS_Store
+client_secret_*.json

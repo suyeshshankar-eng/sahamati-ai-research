@@ -1,0 +1,31 @@
+{
+  "name": "ai-ui-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS_BUCKET",
+      "bucket_name": "ai-ui-documents"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai-ui-db",
+      "database_id": "e482bd45-61a9-4fb8-8eba-b2ae159771f6"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS",
+      "id": "6f61dc090cb2431b969846c93d22d31e"
+    }
+  ]
+  // Secrets (set via `wrangler secret put`):
+  // GEMINI_API_KEY
+  // ENCRYPTION_MASTER_KEY
+  // GOOGLE_CLIENT_ID
+  // GOOGLE_CLIENT_SECRET
+  // FRONTEND_URL
+}
