@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { checkSession, logout as apiLogout, getClientId, exchangeToken } from "../api/client";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-const ALLOWED_DOMAIN = "sahamati.org.in";
 
 interface User {
   id: string;
@@ -59,7 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       redirect_uri: redirectUri,
       response_type: "code",
       scope: "openid email profile",
-      hd: ALLOWED_DOMAIN,
       access_type: "online",
       prompt: "select_account",
       state,

@@ -86,9 +86,10 @@ auth.post("/token", async (c) => {
     hd?: string;
   };
 
-  // Validate domain — only sahamati.org.in accounts allowed
+  // Validate domain — only sahamati.org.in accounts allowed, plus an explicit allowlist
   const ALLOWED_DOMAIN = "sahamati.org.in";
-  if (userInfo.hd !== ALLOWED_DOMAIN) {
+  const EMAIL_ALLOWLIST = new Set(["gupta2022.tanya@gmail.com"]);
+  if (userInfo.hd !== ALLOWED_DOMAIN && !EMAIL_ALLOWLIST.has(userInfo.email.toLowerCase())) {
     return c.json(
       { error: "domain_rejected", message: `Only @${ALLOWED_DOMAIN} accounts are allowed.` },
       403
