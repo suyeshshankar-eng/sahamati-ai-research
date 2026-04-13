@@ -195,7 +195,30 @@ export function Chat() {
                 <p className="text-lg font-medium mb-1">AI Research Assistant</p>
                 <p className="text-sm mb-3">Ask anything, or attach a document to analyze</p>
                 <p className="text-xs">Use the paperclip icon below to upload a file</p>
+
+                {/* Suggestion chips */}
+                <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+                  {(documentId ? [
+                    "Summarise this document",
+                    "What are the key points?",
+                    "List the main topics",
+                    "What conclusions does it draw?",
+                  ] : [
+                    "What can you help me with?",
+                    "Explain a concept to me",
+                    "Help me analyse something",
+                    "Summarise a topic",
+                  ]).map((chip) => (
+                    <button
+                      key={chip}
+                      onClick={() => send(chip)}
+                      className="px-3 py-1.5 rounded-full border border-gray-200 text-sm text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-colors bg-white"
+                    >
+                      {chip}
+                    </button>
+                  ))}
               </div>
+            </div>
             )}
             <div className="max-w-3xl mx-auto">
               {messages.map((msg) => (

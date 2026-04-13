@@ -1,5 +1,6 @@
 {
   "name": "ai-ui-worker",
+  "account_id": "15bd57614c31319d61d0e6805599fe95",
   "main": "src/index.ts",
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
