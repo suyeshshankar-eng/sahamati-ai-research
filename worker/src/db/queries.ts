@@ -39,12 +39,13 @@ export async function insertDocument(
     isImage: boolean;
     category: string | null;
     tags: string[] | null;
+    summary: string | null; 
   }
 ) {
   await db
     .prepare(
-      `INSERT INTO documents (id, user_id, filename, mime_type, size_bytes, r2_key_original, r2_key_text, is_image, category, tags)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO documents (id, user_id, filename, mime_type, size_bytes, r2_key_original, r2_key_text, is_image, category, tags, summary)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       doc.id,
@@ -56,7 +57,8 @@ export async function insertDocument(
       doc.r2KeyText,
       doc.isImage ? 1 : 0,
       doc.category,
-      doc.tags ? JSON.stringify(doc.tags) : null
+      doc.tags ? JSON.stringify(doc.tags) : null,
+      doc.summary ?? null
     )
     .run();
 }
@@ -64,7 +66,7 @@ export async function insertDocument(
 export async function listDocuments(db: D1Database, userId: string) {
   return db
     .prepare(
-      "SELECT id, filename, mime_type, size_bytes, is_image, category, tags, created_at FROM documents WHERE user_id = ? ORDER BY created_at DESC"
+      "SELECT id, filename, mime_type, size_bytes, is_image, category, tags, created_at, summary FROM documents WHERE user_id = ? ORDER BY created_at DESC"
     )
     .bind(userId)
     .all();

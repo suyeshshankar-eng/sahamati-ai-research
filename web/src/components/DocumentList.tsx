@@ -9,6 +9,7 @@ interface Document {
   category: string | null;
   tags: string[];
   createdAt: string;
+  summary: string | null;
 }
 
 interface Props {
@@ -165,6 +166,10 @@ export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, exis
                   {formatSize(doc.sizeBytes)} &middot;{" "}
                   {new Date(doc.createdAt).toLocaleDateString()}
                 </p>
+                {/* Auto Summary */}
+                {doc.summary && (
+                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{doc.summary}</p>
+                )}
               </div>
             </button>
             <div className="flex items-center gap-2 flex-shrink-0 ml-2">

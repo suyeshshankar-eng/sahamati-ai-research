@@ -67,3 +67,20 @@ ${documentText}`
 
   return { stream, getFullResponse: () => fullResponsePromise };
 }
+
+export async function summarizeDocument(
+  client: GoogleGenAI,
+  documentText: string
+): Promise<string> {
+    const response = await client.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: `Summarize the following document in 2-3 sentences. Be concise and capture the main points.\n\nDOCUMENT:\n${documentText}` }],
+      },
+    ],
+  });
+
+  return response.text ?? "";
+}

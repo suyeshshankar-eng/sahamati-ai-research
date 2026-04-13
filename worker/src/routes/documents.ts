@@ -13,6 +13,8 @@ import { extractPdfText } from "../parsers/pdf";
 import { extractDocxText } from "../parsers/docx";
 import { extractSpreadsheetText } from "../parsers/spreadsheet";
 import { extractPlainText } from "../parsers/text";
+import { summarizeDocument } from "../services/gemini";
+import { GoogleGenAI } from "@google/genai";
 
 type DocsApp = { Bindings: Env; Variables: { userId: string; session: SessionData } };
 
@@ -78,6 +80,7 @@ documents.post("/", async (c) => {
   await c.env.DOCUMENTS_BUCKET.put(r2KeyOriginal, encryptedOriginal);
 
   let r2KeyText: string | null = null;
+  let summary: string | null = null;
   if (!isImage) {
     const text = await extractText(buffer, file.type);
     if (text) {
@@ -85,6 +88,12 @@ documents.post("/", async (c) => {
       const encryptedText = await encrypt(textBytes.buffer as ArrayBuffer, key);
       r2KeyText = `${userId}/${docId}/text`;
       await c.env.DOCUMENTS_BUCKET.put(r2KeyText, encryptedText);
+      try {
+        const genAI = new GoogleGenAI({ apiKey: c.env.GEMINI_API_KEY });
+        summary = await summarizeDocument(genAI, text);
+      } catch {
+        // silently fail — summary is optional
+      }
     }
   }
 
@@ -99,6 +108,7 @@ documents.post("/", async (c) => {
     isImage,
     category,
     tags,
+    summary,
   });
 
   return c.json(
