@@ -4,7 +4,7 @@ import { Layout } from "../components/Layout";
 import { ChatMessage } from "../components/ChatMessage";
 import { ChatInput } from "../components/ChatInput";
 import { useChat } from "../hooks/useChat";
-import { getChatHistory } from "../api/client";
+import { getChatHistory, getDocumentText } from "../api/client";
 
 export function Research() {
   const { docId } = useParams<{ docId: string }>();
@@ -12,11 +12,17 @@ export function Research() {
   const { messages, streaming, conversationId, send, loadConversation, reset } =
     useChat(docId!);
   const [conversations, setConversations] = useState<any[]>([]);
+  const [docText, setDocText]  = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (docId) {
       getChatHistory(docId).then((res) => setConversations(res.conversations));
+
+      //fetch document text
+      getDocumentText(docId)
+        .then((res) => setDocText(res.text))
+        .catch(() => setDocText(null));
     }
   }, [docId, conversationId]);
 
@@ -59,6 +65,20 @@ export function Research() {
             ))}
           </div>
         </div>
+
+        {/* Document Text Panel - only visible if text exists */}
+        {docText && (
+          <div className="w-96 flex-shrink-0 flex flex-col bg-white rounded-lg border border-gray-200">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <p className="text-sm font-medium text-gray-700">Document</p>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">
+                {docText}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Chat area */}
         <div className="flex-1 flex flex-col bg-gray-50 rounded-lg border border-gray-200">

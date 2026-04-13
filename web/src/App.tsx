@@ -4,6 +4,7 @@ import { Login } from "./pages/Login";
 import { AuthCallback } from "./pages/AuthCallback";
 import { Chat } from "./pages/Chat";
 import { Dashboard } from "./pages/Dashboard";
+import { Research } from "./pages/Research";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -54,6 +55,13 @@ function AppRoutes() {
         }
       />
       <Route path="/" element={<Navigate to="/chat" replace />} />
+      <Route
+        path="/research/:docID" element={
+          <ProtectedRoute>
+            <Research/>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

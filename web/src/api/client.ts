@@ -175,3 +175,7 @@ export async function getChatHistory(docId: string) {
 export async function getConversationMessages(convId: string) {
   return apiFetch<{ conversation: any; messages: any[] }>(`/chat/conversation/${convId}`);
 }
+
+export async function getDocumentText(docId: string){
+  return apiFetch<{text:string}>('document/${docID}/text');
+}
