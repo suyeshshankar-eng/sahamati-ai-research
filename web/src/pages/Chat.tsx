@@ -195,9 +195,23 @@ export function Chat() {
                 <p className="text-lg font-medium mb-1">AI Research Assistant</p>
                 <p className="text-sm mb-3">Ask anything, or attach a document to analyze</p>
                 <p className="text-xs">Use the paperclip icon below to upload a file</p>
+              </div>
+            )}
+            <div className="max-w-3xl mx-auto">
+              {messages.map((msg) => (
+                <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
 
-                {/* Suggestion chips */}
-                <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+          {/* Input */}
+          <div className="border-t border-gray-200 bg-white px-4 py-3">
+            <div className="max-w-3xl mx-auto">
+
+              {/* Suggestion chips */}
+              {messages.length === 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
                   {(documentId ? [
                     "Summarise this document",
                     "What are the key points?",
@@ -217,20 +231,9 @@ export function Chat() {
                       {chip}
                     </button>
                   ))}
-              </div>
-            </div>
-            )}
-            <div className="max-w-3xl mx-auto">
-              {messages.map((msg) => (
-                <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          </div>
+                </div>
+              )}
 
-          {/* Input */}
-          <div className="border-t border-gray-200 bg-white px-4 py-3">
-            <div className="max-w-3xl mx-auto">
               <ChatInput
                 onSend={send}
                 onAttachFile={handleAttachFile}
