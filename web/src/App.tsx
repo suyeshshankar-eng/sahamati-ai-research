@@ -47,7 +47,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/documents"
+        path="/files"
         element={
           <ProtectedRoute>
             <Dashboard />
@@ -56,7 +56,7 @@ function AppRoutes() {
       />
       <Route path="/" element={<Navigate to="/chat" replace />} />
       <Route
-        path="/research/:docID" element={
+        path="/research/:docId" element={
           <ProtectedRoute>
             <Research/>
           </ProtectedRoute>

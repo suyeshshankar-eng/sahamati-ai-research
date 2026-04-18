@@ -177,5 +177,5 @@ export async function getConversationMessages(convId: string) {
 }
 
 export async function getDocumentText(docId: string){
-  return apiFetch<{text:string}>('document/${docID}/text');
+  return apiFetch<{text:string}>(`/documents/${docId}/text`);
 }
