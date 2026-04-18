@@ -46,7 +46,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/documents"
+        path="/files"
         element={
           <ProtectedRoute>
             <Dashboard />

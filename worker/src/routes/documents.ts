@@ -150,6 +150,7 @@ documents.get("/", async (c) => {
       category,
       tags,
       createdAt: row.created_at,
+      summary: row.summary
     };
   });
 

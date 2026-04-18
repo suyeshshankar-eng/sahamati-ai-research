@@ -168,7 +168,7 @@ export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, exis
                 </p>
                 {/* Auto Summary */}
                 {doc.summary && (
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{doc.summary}</p>
+                <p className="text-xs text-gray-500 mt-1 line-clamp-2" title={doc.summary ?? ""}>{doc.summary}</p>
                 )}
               </div>
             </button>
