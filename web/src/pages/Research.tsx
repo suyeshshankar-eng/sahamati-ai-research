@@ -16,25 +16,18 @@ export function Research() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log("docId:", docId);
     if (docId) {
       getChatHistory(docId).then((res) => setConversations(res.conversations));
-
-      //fetch document text
-      // getDocumentText(docId)
-      //   .then((res) => setDocText(res.text))
-      //   .catch(() => setDocText(null));
-      getDocumentText(docId)
-      .then((res) => {
-        console.log("docText received:", res.text);
-        setDocText(res.text);
-      })
-      .catch((err) => {
-        console.log("docText error:", err);
-        setDocText(null);
-      });
     }
   }, [docId, conversationId]);
+
+  useEffect(() => {
+    if (!docId) return;
+
+    getDocumentText(docId)
+      .then((res) => setDocText(res.text))
+      .catch(() => setDocText(null));
+  }, [docId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
