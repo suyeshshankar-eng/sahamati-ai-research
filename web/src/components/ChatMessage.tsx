@@ -10,12 +10,11 @@ interface Props {
 export function ChatMessage({ role, content }: Props) {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
-  const [hovered, setHovered] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(content); //copies message text to clipboard
-    setCopied(true); //copied state — tracks if copy was clicked
-    setTimeout(() => setCopied(false), 2000) //shows "Copied" for 2 seconds then resets back to "Copy"
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000)
   };
 
   return (

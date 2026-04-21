@@ -80,21 +80,13 @@ export function ChatInput({ onSend, onAttachFile, disabled, attachedFilename }: 
             </button>
           </>
         )}
-        {/* <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={attachedFilename ? "Ask about your document..." : "Ask anything..."}
-          disabled={disabled}
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
-        /> */}
         <textarea
           value={text}
           onChange={handleTextChange}
           onKeyDown={(e) =>{
-            if(e.key === "Enter" && !e.shiftKey){ //if enter is pressed without shift (desired behaviour: send message)
-              e.preventDefault(); //normally pressing Enter in a textarea adds a new line. This line stops that default behavior.
-              handleSubmit(e as any); //calls the submit function to send the message.
+            if(e.key === "Enter" && !e.shiftKey){
+              e.preventDefault();
+              handleSubmit(e as any);
             }
           }}
           placeholder={attachedFilename ? "Ask about your document..." : "Ask anything..."}
