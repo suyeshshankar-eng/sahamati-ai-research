@@ -204,7 +204,7 @@ export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, exis
               {/* research page */}
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // prevent triggering onSelect
+                  e.stopPropagation();
                   navigate(`/research/${doc.id}`);
                 }}
                 className="text-gray-400 hover:text-blue-500 text-xs flex-shrink-0"
