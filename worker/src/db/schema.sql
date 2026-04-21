@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS documents (
     is_image INTEGER NOT NULL DEFAULT 0,
     category TEXT DEFAULT NULL,
     tags TEXT DEFAULT NULL,
+    summary TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id, created_at DESC);
