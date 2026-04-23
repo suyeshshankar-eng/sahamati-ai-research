@@ -208,6 +208,32 @@ export function Chat() {
           {/* Input */}
           <div className="border-t border-gray-200 bg-white px-4 py-3">
             <div className="max-w-3xl mx-auto">
+
+              {/* Suggestion chips */}
+              {messages.length === 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {(documentId ? [
+                    "Summarise this document",
+                    "What are the key points?",
+                    "List the main topics",
+                    "What conclusions does it draw?",
+                  ] : [
+                    "What can you help me with?",
+                    "Explain a concept to me",
+                    "Help me analyse something",
+                    "Summarise a topic",
+                  ]).map((chip) => (
+                    <button
+                      key={chip}
+                      onClick={() => send(chip)}
+                      className="px-3 py-1.5 rounded-full border border-gray-200 text-sm text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-colors bg-white"
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <ChatInput
                 onSend={send}
                 onAttachFile={handleAttachFile}

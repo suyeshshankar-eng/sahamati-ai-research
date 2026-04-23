@@ -1,11 +1,18 @@
 {
   "name": "ai-ui",
   "private": true,
-  "workspaces": ["worker", "web", "shared"],
+  "workspaces": [
+    "worker",
+    "web",
+    "shared"
+  ],
   "scripts": {
     "dev:worker": "npm run dev --workspace=worker",
     "dev:web": "npm run dev --workspace=web",
     "build:web": "npm run build --workspace=web",
     "deploy:worker": "npm run deploy --workspace=worker"
+  },
+  "dependencies": {
+    "lucide-react": "^1.8.0"
   }
 }

@@ -32,6 +32,12 @@ export function ChatInput({ onSend, onAttachFile, disabled, attachedFilename }: 
     }
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>{
+    setText(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
   return (
     <div>
       {attachedFilename && (
@@ -74,13 +80,20 @@ export function ChatInput({ onSend, onAttachFile, disabled, attachedFilename }: 
             </button>
           </>
         )}
-        <input
-          type="text"
+        <textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleTextChange}
+          onKeyDown={(e) =>{
+            if(e.key === "Enter" && !e.shiftKey){
+              e.preventDefault();
+              handleSubmit(e as any);
+            }
+          }}
           placeholder={attachedFilename ? "Ask about your document..." : "Ask anything..."}
           disabled={disabled}
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
+          rows = {1}
+          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50 resize-none overflow-hidden"
+          style = {{minHeight:"38px", maxHeight:"160px"}}
         />
         <button
           type="submit"
