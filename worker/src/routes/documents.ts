@@ -202,4 +202,30 @@ documents.delete("/:id", async (c) => {
   return c.json({ ok: true });
 });
 
+// GET /documents/:id/text - Get decrypted document text for Research page
+documents.get("/:id/text", async (c) =>{
+  const userId = c.get("userId")
+  const docId = c.req.param("id");
+
+  const doc = await getDocument(c.env.DB, docId, userId);
+  if (!doc) {
+    return c.json({ error: "not_found", message: "Document not found" }, 404);
+  }
+
+  if (!(doc as any).r2_key_text) {
+    return c.json({ error: "no_text", message: "No text available for this document" }, 404);
+  }
+
+  const encrypted = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_text);
+  if (!encrypted) {
+    return c.json({ error: "not_found", message: "File not found in storage" }, 404);
+  }
+
+  const key = await deriveUserKey(c.env.ENCRYPTION_MASTER_KEY, userId);
+  const decrypted = await decrypt(await encrypted.arrayBuffer(), key);
+  const text = new TextDecoder().decode(decrypted);
+
+  return c.json({ text });
+})
+
 export default documents;

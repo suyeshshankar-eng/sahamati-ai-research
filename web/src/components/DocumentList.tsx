@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 interface Document {
   id: string;
@@ -146,6 +147,8 @@ export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, exis
     );
   }
 
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-2">
       {documents.map((doc) => (
@@ -233,6 +236,17 @@ export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, exis
                 title="Delete"
               >
                 Delete
+              </button>
+              {/* research page */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/research/${doc.id}`);
+                }}
+                className="text-gray-400 hover:text-blue-500 text-xs flex-shrink-0"
+                title="Research"
+                >
+                Research
               </button>
             </div>
           </div>
