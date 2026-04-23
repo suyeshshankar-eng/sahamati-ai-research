@@ -8,7 +8,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const navItems = [
     { path: "/chat", label: "Chat" },
-    { path: "/documents", label: "Documents" },
+    { path: "/files", label: "Documents" },
   ];
 
   return (

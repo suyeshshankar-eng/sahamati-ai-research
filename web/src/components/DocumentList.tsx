@@ -9,6 +9,7 @@ interface Document {
   category: string | null;
   tags: string[];
   createdAt: string;
+  summary: string | null;
 }
 
 interface Props {
@@ -135,6 +136,7 @@ function TagEditor({
 
 export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, existingCategories, existingTags }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expandedSummary, setExpandedSummary] = useState<string | null>(null);
 
   if (documents.length === 0) {
     return (
@@ -165,7 +167,41 @@ export function DocumentList({ documents, onSelect, onDelete, onUpdateMeta, exis
                   {formatSize(doc.sizeBytes)} &middot;{" "}
                   {new Date(doc.createdAt).toLocaleDateString()}
                 </p>
+                {/* Auto Summary */}
+                {doc.summary && (
+                <div>
+                {expandedSummary !== doc.id && (
+                <p className="text-xs text-gray-500 mt-1 line-clamp-2 cursor-pointer" title="Document Summary">
+                  {doc.summary}
+                </p>
+                )}
+                {expandedSummary === doc.id ? (
+                  <>
+                    <p className="text-xs text-gray-500 mt-1">{doc.summary}</p>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedSummary(null);
+                      }}
+                      className="text-xs text-blue-500 hover:text-blue-700 mt-1"
+                    >
+                      See less
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedSummary(doc.id);
+                    }}
+                    className="text-xs text-blue-500 hover:text-blue-700 mt-1"
+                  >
+                    See more
+                </button>
+              )}
               </div>
+            )}
+            </div>
             </button>
             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
               {doc.category && (
