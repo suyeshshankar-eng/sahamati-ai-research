@@ -44,7 +44,6 @@ chat.post("/", async (c) => {
     return c.json({ error: "bad_request", message: "message is required" }, 400);
   }
 
-  //Updated
   let documentInput: { type: "text" | "pdf" | "image"; content: string; mimeType?: string } | null = null;
   
   if (body.documentId) {
@@ -65,56 +64,16 @@ chat.post("/", async (c) => {
           const base64 = btoa(String.fromCharCode(...new Uint8Array(decryptedData)));
           documentInput = { type: "image", content: base64, mimeType };
         }
-      // } else if (mimeType === "application/pdf") {
-      //   // Fetch and decrypt original PDF from R2 — send directly to Gemini
-      //   const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_original);
-      //   if (r2Object) {
-      //     const encryptedData = await r2Object.arrayBuffer();
-      //     const decryptedData = await decrypt(encryptedData, key);
-      //     const base64 = btoa(String.fromCharCode(...new Uint8Array(decryptedData)));
-      //     documentInput = { type: "pdf", content: base64, mimeType: "application/pdf" };
-      //   }
-      // } 
       } else if (mimeType === "application/pdf") {
-        if ((doc as any).r2_key_text) {
-          // Try extracted text first
-          const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_text);
-          if (r2Object) {
-            const encryptedText = await r2Object.arrayBuffer();
-            const decryptedText = await decrypt(encryptedText, key);
-            const text = new TextDecoder().decode(decryptedText);
-            
-            const cleanText = text.replace(/[\s\n\r]/g, "");
-            const totalLength = text.length;
-            const ratio = totalLength > 0 ? cleanText.length / totalLength : 0;
-
-            if (cleanText.length > 100 && ratio > 0.1) {
-              // Real content — use text (at least 50 real chars and 10% is non-whitespace)
-              documentInput = { type: "text", content: text };
-            } else {
-              // Poor extraction — fall back to full PDF
-              const pdfObject = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_original);
-              if (pdfObject) {
-                const encryptedPdf = await pdfObject.arrayBuffer();
-                const decryptedPdf = await decrypt(encryptedPdf, key);
-                const base64 = arrayBufferToBase64(decryptedPdf);
-                // const base64 = btoa(String.fromCharCode(...new Uint8Array(decryptedPdf)));
-                documentInput = { type: "pdf", content: base64, mimeType: "application/pdf" };
-              }
-            }
-          }
-        } else {
-          // No text extracted at all — send full PDF
-          const pdfObject = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_original);
-          if (pdfObject) {
-            const encryptedPdf = await pdfObject.arrayBuffer();
-            const decryptedPdf = await decrypt(encryptedPdf, key);
-            const base64 = arrayBufferToBase64(decryptedPdf);
-            // const base64 = btoa(String.fromCharCode(...new Uint8Array(decryptedPdf)));
-            documentInput = { type: "pdf", content: base64, mimeType: "application/pdf" };
-          }
+        // Fetch and decrypt original PDF from R2 — send directly to Gemini
+        const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_original);
+        if (r2Object) {
+          const encryptedData = await r2Object.arrayBuffer();
+          const decryptedData = await decrypt(encryptedData, key);
+          const base64 = arrayBufferToBase64(decryptedData);
+          documentInput = { type: "pdf", content: base64, mimeType: "application/pdf" };
         }
-      }
+      } 
       else if ((doc as any).r2_key_text) {
         // For other file types (docx, csv, txt) — use extracted text as before
         const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_text);
@@ -125,28 +84,6 @@ chat.post("/", async (c) => {
         }
       }
     }
-  //Original
-  // If a document is referenced, verify it belongs to user
-  // let documentText: string | null = null;
-  // if (body.documentId) {
-  //   const doc = await getDocument(c.env.DB, body.documentId, userId);
-  //   if (!doc) {
-  //     return c.json({ error: "not_found", message: "Document not found" }, 404);
-  //   }
-
-  //   // Decrypt document text
-  //   const key = await deriveUserKey(c.env.ENCRYPTION_MASTER_KEY, userId);
-  //   if ((doc as any).r2_key_text) {
-  //     const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_text);
-  //     if (r2Object) {
-  //       const encryptedText = await r2Object.arrayBuffer();
-  //       const decryptedText = await decrypt(encryptedText, key);
-  //       documentText = new TextDecoder().decode(decryptedText);
-  //     }
-  //   } else if ((doc as any).is_image === 1) {
-  //     documentText = "[This is an image document. Describe what you see and answer questions about it.]";
-  //   }
-  // }
 
   // Get or create conversation
   let conversationId = body.conversationId;
