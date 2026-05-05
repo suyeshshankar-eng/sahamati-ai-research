@@ -18,14 +18,12 @@ export async function streamChat(
     { role: "user" as const, parts: [{ text: userMessage }] },
   ];
 
-  //updated - prompt for formatted responses
-    const systemInstruction = documentText
-    ? `You are a document research assistant. Analyze the following document and answer questions using accurate responses with ## headings, bullet points, and cite specific parts when relevant.
+  const systemInstruction = documentText
+    ? `You are a document research assistant. Analyze the following document and answer the user's questions about it. Be thorough, accurate, and cite specific parts of the document when relevant.
 
 DOCUMENT CONTENT:
 ${documentText}`
-    : `You are a helpful research and analysis assistant. Answer user questions thoroughly and accurately. Use ## headings, bullet points, and short paragraphs.`;
-``
+    : `You are a helpful research and analysis assistant. Help the user with their questions. Be thorough, accurate, and well-structured in your responses.`;
 
   const response = await client.models.generateContentStream({
     model: "gemini-2.5-flash",
