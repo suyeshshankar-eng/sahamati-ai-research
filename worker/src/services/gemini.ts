@@ -50,7 +50,7 @@ export async function streamChat(
   const systemInstruction = document
   ? `You are a document research assistant. Analyze the provided document and answer the user's questions about it. Be thorough, accurate, and cite specific parts when relevant.`
   : `You are a helpful research and analysis assistant. Help the user with their questions. Be thorough, accurate, and well-structured in your responses.`;
-  
+
     const response = await client.models.generateContentStream({
     model: "gemini-2.5-flash",
     config: { systemInstruction },

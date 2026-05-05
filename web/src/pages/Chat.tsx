@@ -199,7 +199,7 @@ export function Chat() {
             )}
             <div className="max-w-3xl mx-auto">
               {messages.map((msg) => (
-                <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
+                <ChatMessage key={msg.id} id={msg.id} role={msg.role} content={msg.content} />
               ))}
               <div ref={messagesEndRef} />
             </div>
