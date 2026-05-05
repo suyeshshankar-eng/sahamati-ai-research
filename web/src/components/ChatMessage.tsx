@@ -5,14 +5,19 @@ import { Copy, Check } from "lucide-react";
 interface Props {
   role: "user" | "assistant";
   content: string;
+  id: string;
 }
 
-export function ChatMessage({ role, content }: Props) {
+export function ChatMessage({ role, content , id}: Props) {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(content);
+    //Get the rendered text from the DOM element
+    const element = document.getElementById(`msg-${id}`);
+    const text = element?.innerText ?? content;
+
+    navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000)
   };
@@ -29,7 +34,7 @@ export function ChatMessage({ role, content }: Props) {
         {isUser ? (
           <p className="text-sm whitespace-pre-wrap">{content}</p>
         ) : (
-          <div className="prose prose-sm max-w-none">
+          <div id={`msg-${id}`} className="prose prose-sm max-w-none">
             <Markdown>{content || "..."}</Markdown>
           </div>
         )}
