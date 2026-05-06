@@ -20,6 +20,17 @@ type ChatApp = { Bindings: Env; Variables: { userId: string; session: SessionDat
 
 const chat = new Hono<ChatApp>();
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
 // POST /chat - Send message and stream response
 chat.post("/", async (c) => {
   const userId = c.get("userId");
@@ -33,27 +44,46 @@ chat.post("/", async (c) => {
     return c.json({ error: "bad_request", message: "message is required" }, 400);
   }
 
-  // If a document is referenced, verify it belongs to user
-  let documentText: string | null = null;
+  let documentInput: { type: "text" | "pdf" | "image"; content: string; mimeType?: string } | null = null;
+  
   if (body.documentId) {
-    const doc = await getDocument(c.env.DB, body.documentId, userId);
-    if (!doc) {
-      return c.json({ error: "not_found", message: "Document not found" }, 404);
-    }
-
-    // Decrypt document text
-    const key = await deriveUserKey(c.env.ENCRYPTION_MASTER_KEY, userId);
-    if ((doc as any).r2_key_text) {
-      const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_text);
-      if (r2Object) {
-        const encryptedText = await r2Object.arrayBuffer();
-        const decryptedText = await decrypt(encryptedText, key);
-        documentText = new TextDecoder().decode(decryptedText);
+      const doc = await getDocument(c.env.DB, body.documentId, userId);
+      if (!doc) {
+        return c.json({ error: "not_found", message: "Document not found" }, 404);
       }
-    } else if ((doc as any).is_image === 1) {
-      documentText = "[This is an image document. Describe what you see and answer questions about it.]";
+
+      const key = await deriveUserKey(c.env.ENCRYPTION_MASTER_KEY, userId);
+      const mimeType = (doc as any).mime_type;
+
+      if ((doc as any).is_image === 1) {
+        // Fetch and decrypt original image from R2
+        const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_original);
+        if (r2Object) {
+          const encryptedData = await r2Object.arrayBuffer();
+          const decryptedData = await decrypt(encryptedData, key);
+          const base64 = btoa(String.fromCharCode(...new Uint8Array(decryptedData)));
+          documentInput = { type: "image", content: base64, mimeType };
+        }
+      } else if (mimeType === "application/pdf") {
+        // Fetch and decrypt original PDF from R2 — send directly to Gemini
+        const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_original);
+        if (r2Object) {
+          const encryptedData = await r2Object.arrayBuffer();
+          const decryptedData = await decrypt(encryptedData, key);
+          const base64 = arrayBufferToBase64(decryptedData);
+          documentInput = { type: "pdf", content: base64, mimeType: "application/pdf" };
+        }
+      } 
+      else if ((doc as any).r2_key_text) {
+        // For other file types (docx, csv, txt) — use extracted text as before
+        const r2Object = await c.env.DOCUMENTS_BUCKET.get((doc as any).r2_key_text);
+        if (r2Object) {
+          const encryptedText = await r2Object.arrayBuffer();
+          const decryptedText = await decrypt(encryptedText, key);
+          documentInput = { type: "text", content: new TextDecoder().decode(decryptedText) };
+        }
+      }
     }
-  }
 
   // Get or create conversation
   let conversationId = body.conversationId;
@@ -91,7 +121,8 @@ chat.post("/", async (c) => {
   const gemini = createGeminiClient(c.env.GEMINI_API_KEY);
   const { stream, getFullResponse } = await streamChat(
     gemini,
-    documentText,
+    // documentText,
+    documentInput,
     conversationHistory,
     body.message
   );

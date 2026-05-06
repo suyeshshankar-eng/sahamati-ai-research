@@ -4,28 +4,54 @@ export function createGeminiClient(apiKey: string) {
   return new GoogleGenAI({ apiKey });
 }
 
+export interface DocumentInput {
+  type: "text" | "pdf" | "image";
+  content: string;
+  mimeType?: string;
+}
+
+//updated - send pdf to gemini, instead of extracted text
 export async function streamChat(
   client: GoogleGenAI,
-  documentText: string | null,
+  document: DocumentInput | null,
   conversationHistory: { role: string; content: string }[],
   userMessage: string
 ): Promise<{ stream: ReadableStream; getFullResponse: () => Promise<string> }> {
+
+  const userParts: any[] = [];
+  
+  //Add document as inline data if PDF or image
+  if(document){
+    if (document?.type === "pdf" || document?.type === "image") {
+    userParts.push({
+      inlineData: {
+        mimeType: document.mimeType,
+        data: document.content, //base64
+      }
+    });
+    }
+    else {
+      userParts.push({
+        text: document.content
+      });
+    }
+  }
+
+  userParts.push({ text: userMessage });
+
   const contents = [
     ...conversationHistory.map((msg) => ({
       role: msg.role === "assistant" ? ("model" as const) : ("user" as const),
       parts: [{ text: msg.content }],
     })),
-    { role: "user" as const, parts: [{ text: userMessage }] },
+    { role: "user" as const, parts: userParts },
   ];
 
-  const systemInstruction = documentText
-    ? `You are a document research assistant. Analyze the following document and answer the user's questions about it. Be thorough, accurate, and cite specific parts of the document when relevant.
-
-DOCUMENT CONTENT:
-${documentText}`
-    : `You are a helpful research and analysis assistant. Help the user with their questions. Be thorough, accurate, and well-structured in your responses.`;
-
-  const response = await client.models.generateContentStream({
+  const systemInstruction = document
+  ? `You are a document research assistant. Analyze the provided document and answer the user's questions about it. Be thorough, accurate, and cite specific parts when relevant.`
+  : `You are a helpful research and analysis assistant. Help the user with their questions. Be thorough, accurate, and well-structured in your responses.`;
+  
+    const response = await client.models.generateContentStream({
     model: "gemini-2.5-flash",
     config: { systemInstruction },
     contents,
