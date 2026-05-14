@@ -93,7 +93,7 @@ export function useChat(initialDocId?: string) {
   const reset = useCallback(() => {
     setMessages([]);
     setConversationId(undefined);
-    setDocumentId(initialDocId);
+    setDocumentId(undefined);
     setAttachedDoc(null);
   }, [initialDocId]);
 
