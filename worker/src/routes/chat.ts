@@ -61,7 +61,7 @@ chat.post("/", async (c) => {
         if (r2Object) {
           const encryptedData = await r2Object.arrayBuffer();
           const decryptedData = await decrypt(encryptedData, key);
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(decryptedData)));
+          const base64 = arrayBufferToBase64(decryptedData);
           documentInput = { type: "image", content: base64, mimeType };
         }
       } else if (mimeType === "application/pdf") {

@@ -29,6 +29,17 @@ const IMAGE_TYPES = new Set([
 
 const documents = new Hono<DocsApp>();
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
 async function extractText(
   buffer: ArrayBuffer,
   mimeType: string
@@ -75,27 +86,37 @@ documents.post("/", async (c) => {
 
   const key = await deriveUserKey(c.env.ENCRYPTION_MASTER_KEY, userId);
 
+  const base64 = arrayBufferToBase64(buffer);
   const encryptedOriginal = await encrypt(buffer, key);
   const r2KeyOriginal = `${userId}/${docId}/original`;
   await c.env.DOCUMENTS_BUCKET.put(r2KeyOriginal, encryptedOriginal);
 
   let r2KeyText: string | null = null;
   let summary: string | null = null;
+  let extractedText: string | null = null;
+  
   if (!isImage) {
-    const text = await extractText(buffer, file.type);
-    if (text) {
-      const textBytes = new TextEncoder().encode(text);
+    extractedText = await extractText(buffer, file.type);
+    if (extractedText) {
+      const textBytes = new TextEncoder().encode(extractedText);
       const encryptedText = await encrypt(textBytes.buffer as ArrayBuffer, key);
       r2KeyText = `${userId}/${docId}/text`;
       await c.env.DOCUMENTS_BUCKET.put(r2KeyText, encryptedText);
-      try {
-        const genAI = new GoogleGenAI({ apiKey: c.env.GEMINI_API_KEY });
-        summary = await summarizeDocument(genAI, text);
-      } catch {
-        // silently fail — summary is optional
-      }
     }
   }
+  try {
+        const genAI = new GoogleGenAI({ apiKey: c.env.GEMINI_API_KEY });
+        if (isImage) {
+          summary = await summarizeDocument(genAI, { type: "image", content: base64, mimeType: file.type });
+        }
+        else if (file.type === "application/pdf") {
+            summary = await summarizeDocument(genAI, { type: "pdf", content: base64 });
+        } else if (extractedText) {
+          summary = await summarizeDocument(genAI, { type: "text", content: extractedText });
+        }
+      } catch(err) {
+        // silently fail — summary is optional
+      }
 
   await insertDocument(c.env.DB, {
     id: docId,
