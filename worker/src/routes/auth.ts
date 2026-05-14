@@ -115,20 +115,16 @@ auth.post("/token", async (c) => {
   };
   await createSession(c.env.SESSIONS, sessionId, sessionData);
 
-  // Set httpOnly session cookie
-  const isProduction = !c.env.FRONTEND_URL.includes("localhost");
-  const cookieFlags = `HttpOnly; Path=/; SameSite=${isProduction ? "None" : "Lax"}; Max-Age=86400${isProduction ? "; Secure" : ""}`;
-  c.header("Set-Cookie", `session=${sessionId}; ${cookieFlags}`);
-
   return c.json({
     user: { id: userId, email, name, pictureUrl },
+    sessionId,
   });
 });
 
 // GET /auth/session — verify current session (called on app mount)
 auth.get("/session", async (c) => {
-  const cookie = c.req.header("Cookie") ?? "";
-  const match = cookie.match(/session=([^;]+)/);
+  const authHeader = c.req.header("Authorization") ?? "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (!match) {
     return c.json({ authenticated: false }, 401);
   }
@@ -151,14 +147,11 @@ auth.get("/session", async (c) => {
 
 // POST /auth/logout — destroy session
 auth.post("/logout", async (c) => {
-  const cookie = c.req.header("Cookie") ?? "";
-  const match = cookie.match(/session=([^;]+)/);
+  const authHeader = c.req.header("Authorization") ?? "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (match) {
     await deleteSession(c.env.SESSIONS, match[1]);
   }
-
-  const isProduction = !c.env.FRONTEND_URL.includes("localhost");
-  c.header("Set-Cookie", `session=; HttpOnly; Path=/; Max-Age=0${isProduction ? "; Secure; SameSite=None" : "; SameSite=Lax"}`);
   return c.json({ ok: true });
 });
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
-import { checkSession, logout as apiLogout, getClientId, exchangeToken } from "../api/client";
+import { checkSession, logout as apiLogout, getClientId, exchangeToken, setToken, clearToken } from "../api/client";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 
@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleCallback = useCallback(async (code: string, state: string) => {
     const redirectUri = window.location.origin + "/auth/callback";
     const res = await exchangeToken(code, redirectUri, state);
+    setToken(res.sessionId);
     setUser(res.user);
     setIsAuthenticated(true);
   }, []);
@@ -77,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await apiLogout();
     } catch {}
+    clearToken();
     setUser(null);
     setIsAuthenticated(false);
   }, []);

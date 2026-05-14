@@ -1,4 +1,17 @@
 const BASE = import.meta.env.VITE_API_URL ?? "";
+const TOKEN_KEY = "ai-ui-session";
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
@@ -10,10 +23,14 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     headers["Content-Type"] = "application/json";
   }
 
+  const token = getToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers,
-    credentials: "include",
   });
 
   if (res.status === 401 || res.status === 403) {
@@ -46,13 +63,13 @@ export async function getClientId() {
 }
 
 export async function exchangeToken(code: string, redirectUri: string, state: string) {
-  return apiFetch<{ user: { id: string; email: string; name: string | null; pictureUrl: string | null } }>(
-    "/auth/token",
-    {
-      method: "POST",
-      body: JSON.stringify({ code, redirect_uri: redirectUri, state }),
-    }
-  );
+  return apiFetch<{
+    user: { id: string; email: string; name: string | null; pictureUrl: string | null };
+    sessionId: string;
+  }>("/auth/token", {
+    method: "POST",
+    body: JSON.stringify({ code, redirect_uri: redirectUri, state }),
+  });
 }
 
 export async function checkSession() {
@@ -122,10 +139,13 @@ export async function sendMessage(
   opts?: { documentId?: string; conversationId?: string },
   onChunk?: (text: string) => void
 ): Promise<{ fullText: string; conversationId: string }> {
+  const token = getToken();
   const res = await fetch(`${BASE}/chat`, {
     method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({
       message,
       documentId: opts?.documentId,

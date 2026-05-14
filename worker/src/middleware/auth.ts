@@ -8,8 +8,8 @@ type AuthEnv = {
 };
 
 export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
-  const cookie = c.req.header("Cookie") ?? "";
-  const match = cookie.match(/session=([^;]+)/);
+  const authHeader = c.req.header("Authorization") ?? "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (!match) {
     return c.json({ error: "unauthorized", message: "No session" }, 401);
   }
