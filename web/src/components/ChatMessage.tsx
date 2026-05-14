@@ -1,4 +1,5 @@
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 
@@ -30,7 +31,7 @@ export function ChatMessage({ role, content }: Props) {
           <p className="text-sm whitespace-pre-wrap">{content}</p>
         ) : (
           <div className="prose prose-sm max-w-none">
-            <Markdown>{content || "..."}</Markdown>
+            <Markdown remarkPlugins={[remarkGfm]}>{content || "..."}</Markdown>
           </div>
         )}
       </div>
