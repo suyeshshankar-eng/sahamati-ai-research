@@ -8,17 +8,10 @@
   margin-bottom: 0.5rem;
 }
 
-.prose h2 {
-  font-size: 1rem;
-}
+.prose h2 { font-size: 1rem;}
+.prose h3 {font-size: 0.9rem;}
 
-.prose h3 {
-  font-size: 0.9rem;
-}
-
-.prose p {
-  margin-bottom: 0.75rem;
-}
+.prose p {  margin-bottom: 0.75rem;}
 
 .prose ul {
   margin-bottom: 0.75rem;
@@ -26,10 +19,27 @@
   list-style-type: disc;
 }
 
-.prose li {
-  margin-bottom: 0.25rem;
+.prose li {margin-bottom: 0.25rem;}
+
+.prose strong { font-weight: 600;}
+
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 0.75rem;
 }
 
-.prose strong {
+.prose th, .prose td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: #f9fafb;
   font-weight: 600;
+}
+
+.prose tr:nth-child(even) {
+  background-color: #f9fafb;
 }
