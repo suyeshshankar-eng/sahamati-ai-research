@@ -96,16 +96,27 @@ export async function streamChat(
 
 export async function summarizeDocument(
   client: GoogleGenAI,
-  documentText: string
+  input: { type: "text"; content: string } | { type: "pdf"; content: string } | { type: "image"; content: string; mimeType: string}
 ): Promise<string> {
+    const parts: any[] = [];
+
+    if (input.type === "pdf" || input.type === "image") {
+      parts.push({
+        inlineData: {
+          mimeType: input.type === "pdf" ? "application/pdf" : input.mimeType,
+          data: input.content,
+        }
+      });
+      parts.push({ text: "Summarize this in 2 sentences. Be brief and concise." });
+    } else{
+      parts.push({ text: `Summarize this document in 2 sentences. Be brief and concise:\n\n${input.content}` });
+    }  
     const response = await client.models.generateContent({
     model: "gemini-2.5-flash",
     contents: [
       {
         role: "user",
-        parts: [{ text: `Summarize the following document in 2-3 sentences. Be concise and capture the main points.\n\nDOCUMENT:\n${documentText}` }],
-      },
-    ],
+        parts }],
   });
 
   return response.text ?? "";
