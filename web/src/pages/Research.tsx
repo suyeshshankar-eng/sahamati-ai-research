@@ -92,7 +92,7 @@ export function Research() {
               </div>
             )}
             {messages.map((msg) => (
-              <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
+              <ChatMessage key={msg.id} id = {msg.id} role={msg.role} content={msg.content} />
             ))}
             <div ref={messagesEndRef} />
           </div>
